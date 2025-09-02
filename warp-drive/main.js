@@ -4,28 +4,42 @@ function main() {
     const canvas = document.querySelector('#c');
     const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
-    const fov = 60;
+    const fov = 75; // 視野角を広げて遠近感を強調
     const aspect = 2;
     const near = 0.1;
-    const far = 2000;
+    const far = 4000; // 描画範囲を奥に広げる
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
     camera.position.z = 1;
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x000000, 0.0007);
+    scene.fog = new THREE.FogExp2(0x000000, 0.0005); // フォグを少し調整
 
-    // 星のパーティクルを作成
+    // ★修正点1: 円形のグラデーションテクスチャを生成する関数
+    function createCircleTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 64;
+        canvas.height = 64;
+        const context = canvas.getContext('2d');
+        const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
+        gradient.addColorStop(0, 'rgba(255,255,255,1)');
+        gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+        gradient.addColorStop(1, 'rgba(255,255,255,0)');
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, 64, 64);
+        return new THREE.CanvasTexture(canvas);
+    }
+
     const starCount = 5000;
     const positions = new Float32Array(starCount * 3);
     const colors = new Float32Array(starCount * 3);
-
     const geometry = new THREE.BufferGeometry();
 
     for (let i = 0; i < starCount; i++) {
         const i3 = i * 3;
-        positions[i3] = (Math.random() - 0.5) * 100;
-        positions[i3 + 1] = (Math.random() - 0.5) * 100;
-        positions[i3 + 2] = (Math.random() - 0.5) * 2000;
+        positions[i3] = (Math.random() - 0.5) * 150;
+        positions[i3 + 1] = (Math.random() - 0.5) * 150;
+        // ★修正点2: Z方向の配置範囲を奥に広げる
+        positions[i3 + 2] = (Math.random() - 0.5) * 4000;
 
         const color = new THREE.Color();
         color.setHSL(Math.random(), 0.7, 0.8);
@@ -38,12 +52,12 @@ function main() {
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
     const material = new THREE.PointsMaterial({
-        size: 2,
+        size: 5, // テクスチャに合わせてサイズ調整
+        map: createCircleTexture(), // ★修正点1: 生成した円形テクスチャを使用
         vertexColors: true,
         blending: THREE.AdditiveBlending,
         transparent: true,
-        opacity: 0.7,
-        sizeAttenuation: true,
+        depthWrite: false, // 加算合成を綺麗に見せるため
     });
 
     const stars = new THREE.Points(geometry, material);
@@ -69,20 +83,20 @@ function main() {
             camera.updateProjectionMatrix();
         }
 
-        const delta = clock.getDelta();
-        const speed = 200 + Math.sin(clock.getElapsedTime() * 0.1) * 150; // 速度を周期的に変更
+        // ★修正点3: アニメーション計算の安定化
+        const delta = Math.min(clock.getDelta(), 0.05); // フレームレートの急変動に対応
+        const speed = 600; // 速度を高速で固定
 
-        // パーティクルを動かす
         const positions = stars.geometry.attributes.position.array;
         for (let i = 0; i < starCount; i++) {
             const i3 = i * 3;
             positions[i3 + 2] += delta * speed;
 
-            // パーティクルがカメラを通り過ぎたら、奥に再配置
             if (positions[i3 + 2] > camera.position.z) {
-                positions[i3] = (Math.random() - 0.5) * 100;
-                positions[i3 + 1] = (Math.random() - 0.5) * 100;
-                positions[i3 + 2] = -2000;
+                positions[i3] = (Math.random() - 0.5) * 150;
+                positions[i3 + 1] = (Math.random() - 0.5) * 150;
+                // ★修正点2: 再配置のZ座標も奥にする
+                positions[i3 + 2] = -4000;
             }
         }
         stars.geometry.attributes.position.needsUpdate = true;
