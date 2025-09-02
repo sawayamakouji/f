@@ -64,7 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (navigate) {
             const nextProjectName = projectNames[nextIndex];
             const newUrl = `../${nextProjectName}/`; // 相対パスで移動
-            window.location.href = newUrl;
+            
+            // ★修正点: 直接遷移せず、トランジション関数を呼び出す
+            if (window.startPageTransition) {
+                window.startPageTransition(newUrl);
+            } else {
+                window.location.href = newUrl;
+            }
         }
     });
 });
