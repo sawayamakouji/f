@@ -1,7 +1,10 @@
+console.log('common-transition.js started');
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded fired');
     const overlay = document.createElement('div');
     overlay.id = 'transition-overlay';
     document.body.appendChild(overlay);
+    console.log('Overlay appended');
 
     // 基本的なスタイル
     overlay.style.position = 'fixed';
@@ -19,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fragmentSize = 100 / gridSize; // 各フラグメントのサイズ（%）
     const fragments = [];
 
+    console.log('Generating fragments...');
     for (let i = 0; i < gridSize * gridSize; i++) {
         const fragment = document.createElement('div');
         fragment.className = 'transition-fragment';
@@ -34,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         overlay.appendChild(fragment);
         fragments.push(fragment);
     }
+    console.log('Fragments generated.');
 
     // ページ遷移を開始する関数
     window.startPageTransition = (url) => {
