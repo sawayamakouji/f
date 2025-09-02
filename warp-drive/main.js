@@ -83,7 +83,6 @@ function main() {
             camera.updateProjectionMatrix();
         }
 
-        // ★修正点3: アニメーション計算の安定化
         const delta = Math.min(clock.getDelta(), 0.05); // フレームレートの急変動に対応
         const speed = 600; // 速度を高速で固定
 
@@ -93,23 +92,14 @@ function main() {
             positions[i3 + 2] += delta * speed;
 
             if (positions[i3 + 2] > camera.position.z) {
-                positions[i3] = (Math.random() - 0.5) * 150;
-                positions[i3 + 1] = (Math.random() - 0.5) * 150;
-                // ★修正点2: 再配置のZ座標も奥にする
-                positions[i3 + 2] = -4000;
+                positions[i3] = (Math.random() - 0.5) * 500;
+                positions[i3 + 1] = (Math.random() - 0.5) * 500;
+                positions[i3 + 2] = -2000 - Math.random() * 2000;
             }
         }
         stars.geometry.attributes.position.needsUpdate = true;
 
         renderer.render(scene, camera);
-        requestAnimationFrame(render);
-    }
-
-    requestAnimationFrame(render);
-}
-
-main();
-rer.render(scene, camera);
         requestAnimationFrame(render);
     }
 
