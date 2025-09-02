@@ -36,9 +36,9 @@ function main() {
 
     for (let i = 0; i < starCount; i++) {
         const i3 = i * 3;
-        positions[i3] = (Math.random() - 0.5) * 150;
-        positions[i3 + 1] = (Math.random() - 0.5) * 150;
-        // ★修正点2: Z方向の配置範囲を奥に広げる
+        // ★修正点1: XYの広がりを大きくする
+        positions[i3] = (Math.random() - 0.5) * 500;
+        positions[i3 + 1] = (Math.random() - 0.5) * 500;
         positions[i3 + 2] = (Math.random() - 0.5) * 4000;
 
         const color = new THREE.Color();
@@ -102,6 +102,14 @@ function main() {
         stars.geometry.attributes.position.needsUpdate = true;
 
         renderer.render(scene, camera);
+        requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+}
+
+main();
+rer.render(scene, camera);
         requestAnimationFrame(render);
     }
 
