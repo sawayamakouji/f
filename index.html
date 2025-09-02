@@ -21,6 +21,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             text-align: center;
+            min-width: 300px;
         }
         h1 {
             margin-top: 0;
@@ -42,6 +43,7 @@
             font-weight: bold;
             transition: background-color 0.2s;
             display: inline-block;
+            width: 80%;
         }
         a:hover {
             background-color: #166fe5;
@@ -51,10 +53,49 @@
 <body>
     <div class="container">
         <h1>Three.js Projects</h1>
-        <ul>
-            <li><a href="./tube-flight/">Tube Flight Demo</a></li>
-            <!-- 新しいプロジェクトができたら、ここに<li>を追加 -->
+        <ul id="project-list">
+            <li>Loading...</li>
         </ul>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const owner = 'sawayamakouji';
+            const repo = 'f';
+            const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/`;
+            const projectList = document.getElementById('project-list');
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    projectList.innerHTML = ''; // ローディング表示をクリア
+
+                    const dirs = data.filter(item => item.type === 'dir' && !item.name.startsWith('.'));
+
+                    if (dirs.length === 0) {
+                        projectList.innerHTML = '<li>No projects found.</li>';
+                        return;
+                    }
+
+                    dirs.forEach(dir => {
+                        const listItem = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.href = `./${dir.name}/`;
+                        link.textContent = dir.name;
+                        listItem.appendChild(link);
+                        projectList.appendChild(listItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching repository contents:', error);
+                    projectList.innerHTML = '<li>Failed to load projects.</li>';
+                });
+        });
+    </script>
 </body>
 </html>
